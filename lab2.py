@@ -13,8 +13,7 @@ association = association_rules(frequentItemset, metric='lift', min_threshold=1.
 
 print(frequentItemset)
 print()
-print(association)
+print(association[['antecedents','consequents','support','confidence','lift']])
+print()
 
-# //Use apriori() with min_support=0.5 to find frequent itemsets.
-# // Generate association rules with association_rules() using metric="lift" and min_threshold=1.0.
-# //Print the frequent itemsets and the rules (show antecedents, consequents, support, confidence, lift).
+
