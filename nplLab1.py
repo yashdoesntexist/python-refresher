@@ -3,8 +3,8 @@ import pycorenlp
 from collections import Counter
 import collections
 import pandas as pd
-import pdfplumber
 from playwright.sync_api import sync_playwright, Playwright
+from PyPDF2 import PdfReader
 
 # print(dir(playwright))
 
@@ -32,7 +32,20 @@ from playwright.sync_api import sync_playwright, Playwright
 
 # playwright.stop()
 
-actOne = pdfplumber.open("data/actOne.pdf")
+reader = PdfReader("data/actOne.pdf")
+reader2 = PdfReader("data/actOne.pdf")
+reader3 = PdfReader("data/actOne.pdf")
 
-actOne.to_csv()
+numOfPages = len(reader.pages)
+
+
+page = reader.pages[0]
+
+text = page.extract_text()
+
+# print(text)
+
+for i in range(numOfPages):
+    temp = reader.pages[i].extract_text()
+    print(temp)
 
