@@ -1,11 +1,10 @@
 import re
-import pycorenlp
+from pycorenlp import StanfordCoreNLP
 from collections import Counter
-import collections
 import pandas as pd
 from playwright.sync_api import sync_playwright, Playwright
 from PyPDF2 import PdfReader
-import tkinter as tk
+import json
 
 # print(dir(playwright))
 
@@ -33,9 +32,14 @@ import tkinter as tk
 
 # playwright.stop()
 
+
+
+nlp = StanfordCoreNLP("http://localhost:9000")
+
 reader = PdfReader("data/actOne.pdf")
 reader2 = PdfReader("data/actOne.pdf")
 reader3 = PdfReader("data/actOne.pdf")
+
 
 numOfPages = len(reader.pages)
 
@@ -47,34 +51,33 @@ text = page.extract_text()
 # print(text)
 
 for i in range(numOfPages):
-    temp = reader.pages[i].extract_text()
-    print(temp)
+    actOneText = reader.pages[i].extract_text()
+    # print(temp)
 
 
-class App(tk.Frame):
-    def __init__(self, master):
-        super().__init__(master)
-        self.pack()
 
-        self.entrythingy = tk.Entry()
-        self.entrythingy.pack()
+# got this working for one 
 
-        # Create the application variable.
-        self.contents = tk.StringVar()
-        # Set it to some value.
-        self.contents.set("this is a variable")
-        # Tell the entry widget to watch this variable.
-        self.entrythingy["textvariable"] = self.contents
+output = nlp.annotate(actOneText, properties={
+        'annotators': 'tokenize,ssplit,pos,lemma',
+        'outputFormat': 'json'
+    })
 
-        # Define a callback for when the user hits return.
-        # It prints the current value of the variable.
-        self.entrythingy.bind('<Key-Return>',
-                             self.print_contents)
+# print(output)
 
-    def print_contents(self, event):
-        print("Hi. The current entry content is:",
-              self.contents.get())
+if isinstance(output, str):
+    output = json.loads(output)
 
-root = tk.Tk()
-myapp = App(root)
-myapp.mainloop()
+
+for sentence in output['sentences']:
+    for token in sentence['tokens']:
+        print(token['word'], "->", token['lemma'])
+
+lemmas = []
+for sentence in output['sentences']:
+    for token in sentence['tokens']:
+        lemmas.append(token['lemma'])
+
+counts = Counter(lemmas)
+print()
+print(counts.most_common(10))
