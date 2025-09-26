@@ -81,3 +81,5 @@ for sentence in output['sentences']:
 counts = Counter(lemmas)
 print()
 print(counts.most_common(10))
+
+#csv 
