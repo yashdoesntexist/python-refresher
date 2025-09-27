@@ -6,73 +6,30 @@ from PyPDF2 import PdfReader
 import json
 
 
-# playwright = sync_playwright().start()
+playwright = sync_playwright().start()
 
-# browser = playwright.chromium.launch()
-# page = browser.new_page()
-# page2 = browser.new_page()
-# page3 = browser.new_page()
-# # I could for loop this and make it efficient, i might
-# page.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/24022")
-# page2.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/96289_01")
-# page3.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/96147_01")
+browser = playwright.chromium.launch()
+page = browser.new_page()
+page2 = browser.new_page()
+page3 = browser.new_page()
+# I could for loop this and make it efficient, i might
+page.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/24022")
+page2.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/96289_01")
+page3.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/96147_01")
 
-# page.pdf(path="data/actOne.pdf")
-# page2.pdf(path="data/actTwo.pdf")
-# page3.pdf(path="data/actThree.pdf")
-# browser.close()
+page.pdf(path="data/actOne.pdf")
+page2.pdf(path="data/actTwo.pdf")
+page3.pdf(path="data/actThree.pdf")
+browser.close()
 
-# playwright.stop()
+playwright.stop()
 
 
-file = "wordFrequency.csv"
 nlp = StanfordCoreNLP("http://localhost:9000") # adjust according to where your corenlp is running 
 
-reader = PdfReader("data/actOne.pdf")
-reader2 = PdfReader("data/actOne.pdf")
-reader3 = PdfReader("data/actOne.pdf")
+actFiles = ["actOne.pdf", "actTwo.pdf", "actThree.pdf"]
 
-
-numOfPages = len(reader.pages)
-
-
-page = reader.pages[0]
-
-text = page.extract_text()
-
-# print(text)
-
-for i in range(numOfPages):
-    actOneText = reader.pages[i].extract_text()
-    # print(temp)
-
-
-output = nlp.annotate(actOneText, properties={
-        'annotators': 'tokenize,ssplit,pos,lemma',
-        'outputFormat': 'json'
-    })
-
-
-if isinstance(output, str):
-    output = json.loads(output)
-
-
-for sentence in output['sentences']:
-    for token in sentence['tokens']:
-        print(token['word'], "->", token['lemma'])
-
-lemmas = []
-for sentence in output['sentences']:
-    for token in sentence['tokens']:
-        lemmas.append(token['lemma'])
-
-counts = Counter(lemmas)
-print()
-print(counts.most_common(10))
-
-#csv 
 def extractFiles(pdf_path):
-    """Extracts text, lemmatizes using CoreNLP, and returns word Counter."""
     reader = PdfReader(pdf_path)
     full_text = ""
     for page in reader.pages:
@@ -96,7 +53,7 @@ def extractFiles(pdf_path):
     return Counter(lemmas)
 
 
-actFiles = ["actOne.pdf", "actTwo.pdf", "actThree.pdf"]
+
 actCounts = {}
 allWords = set()
 
