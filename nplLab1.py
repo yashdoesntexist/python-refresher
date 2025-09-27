@@ -1,18 +1,10 @@
-import re
+import csv
 from pycorenlp import StanfordCoreNLP
 from collections import Counter
-import pandas as pd
 from playwright.sync_api import sync_playwright, Playwright
 from PyPDF2 import PdfReader
 import json
 
-# print(dir(playwright))
-
-# print(dir(pycorenlp))
-
-# print(dir(pdfplumber))
-
-# print(dir(collections))
 
 # playwright = sync_playwright().start()
 
@@ -33,8 +25,8 @@ import json
 # playwright.stop()
 
 
-
-nlp = StanfordCoreNLP("http://localhost:9000")
+file = "wordFrequency.csv"
+nlp = StanfordCoreNLP("http://localhost:9000") # adjust according to where your corenlp is running 
 
 reader = PdfReader("data/actOne.pdf")
 reader2 = PdfReader("data/actOne.pdf")
@@ -55,15 +47,11 @@ for i in range(numOfPages):
     # print(temp)
 
 
-
-# got this working for one 
-
 output = nlp.annotate(actOneText, properties={
         'annotators': 'tokenize,ssplit,pos,lemma',
         'outputFormat': 'json'
     })
 
-# print(output)
 
 if isinstance(output, str):
     output = json.loads(output)
@@ -83,3 +71,62 @@ print()
 print(counts.most_common(10))
 
 #csv 
+def extractFiles(pdf_path):
+    """Extracts text, lemmatizes using CoreNLP, and returns word Counter."""
+    reader = PdfReader(pdf_path)
+    full_text = ""
+    for page in reader.pages:
+        text = page.extract_text()
+        if text:
+            full_text += text + "\n"
+
+    output = nlp.annotate(full_text, properties={
+        'annotators': 'tokenize,ssplit,pos,lemma',
+        'outputFormat': 'json'
+    })
+    if isinstance(output, str):
+        output = json.loads(output)
+
+    lemmas = []
+    for sentence in output['sentences']:
+        for token in sentence['tokens']:
+            lemma = token['lemma'].lower()
+            if lemma.isalpha():  
+                lemmas.append(lemma)
+    return Counter(lemmas)
+
+
+actFiles = ["actOne.pdf", "actTwo.pdf", "actThree.pdf"]
+actCounts = {}
+allWords = set()
+
+for act in actFiles:
+    path = f"data/{act}"
+    c = extractFiles(path)
+    actCounts[act] = c
+    allWords.update(c.keys())
+
+
+allWords = sorted(allWords)
+rows = []
+
+for word in allWords:
+    total = sum(actCounts[act].get(word, 0) for act in actFiles)
+    row = [word, total] + [actCounts[act].get(word, 0) for act in actFiles]
+    rows.append(row)
+
+
+totals_row = ["TOTAL"]
+totals_row.append(sum(r[1] for r in rows))
+for act in actFiles:
+    totals_row.append(sum(actCounts[act].values()))
+
+
+with open("word_frequencies.csv", "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    header = ["Word", "Total"] + actFiles
+    writer.writerow(header)
+    writer.writerows(rows)
+    writer.writerow(totals_row)
+
+print("Success!")
