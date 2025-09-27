@@ -1,7 +1,7 @@
 import csv
 from pycorenlp import StanfordCoreNLP
 from collections import Counter
-from playwright.sync_api import sync_playwright, Playwright
+from playwright.sync_api import sync_playwright
 from PyPDF2 import PdfReader
 import json
 
@@ -12,7 +12,6 @@ browser = playwright.chromium.launch()
 page = browser.new_page()
 page2 = browser.new_page()
 page3 = browser.new_page()
-# I could for loop this and make it efficient, i might
 page.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/24022")
 page2.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/96289_01")
 page3.goto("https://www.bclaws.gov.bc.ca/civix/document/id/lc/statreg/96147_01")
@@ -25,7 +24,7 @@ browser.close()
 playwright.stop()
 
 
-nlp = StanfordCoreNLP("http://localhost:9000") # adjust according to where your corenlp is running 
+nlp = StanfordCoreNLP("http://localhost:9000") 
 
 actFiles = ["actOne.pdf", "actTwo.pdf", "actThree.pdf"]
 
