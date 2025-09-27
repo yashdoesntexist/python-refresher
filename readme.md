@@ -10,7 +10,7 @@ This assignment uses the following Python libraries:
 - `PyPDF2` – reads PDF documents
 - `collections` – for counting word frequencies
 - `csv` – for writing the output file
-- `playwright` – for downloading PDFs automatically from BC Laws
+- `playwright` – for downloading PDFs automatically
 
 ## Installation
 
