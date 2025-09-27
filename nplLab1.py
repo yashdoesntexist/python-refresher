@@ -23,7 +23,10 @@ browser.close()
 
 playwright.stop()
 
-
+print()
+print("files successfully stored in data folder!")
+print()
+print("Working on word_frequency file...")
 nlp = StanfordCoreNLP("http://localhost:9000") 
 
 actFiles = ["actOne.pdf", "actTwo.pdf", "actThree.pdf"]
@@ -84,5 +87,5 @@ with open("word_frequencies.csv", "w", newline="", encoding="utf-8") as f:
     writer.writerow(header)
     writer.writerows(rows)
     writer.writerow(totals_row)
-
+print()
 print("Success!")
